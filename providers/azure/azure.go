@@ -393,8 +393,11 @@ func (l *AzureProvider) cleanupAzureLB(lb *lbapi.LoadBalancer, deleteLB bool) er
 
 	if l.oldAzureProvider == nil || len(l.oldAzureProvider.Name) == 0 {
 		log.Errorf("old azure info nil")
-		l.cleanAzure = true
-		return nil
+		err := l.patachFinalizersAndStatus(lb, deleteLB)
+		if err == nil {
+			l.cleanAzure = true
+		}
+		return err
 	}
 	c, err := client.NewClient(&l.storeLister)
 	if err != nil {
